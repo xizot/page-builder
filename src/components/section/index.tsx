@@ -12,30 +12,31 @@ import SelectComponent from "../select-component";
 
 export type SectionProps = {
   control: Control<FormValues>;
-  idx: number;
+  sectionIndex: number;
   onDelete: (idx: number) => void;
 };
 
 const MAX_COLUMNS = 6;
 
-const Section = ({ control, idx, onDelete }: SectionProps) => {
+const Section = ({ control, sectionIndex, onDelete }: SectionProps) => {
   const [openSelectColumns, setOpenSelectColumns] = useState<boolean>(false);
 
   const { setValue, getValues } = useFormContext<FormValues>();
 
   const totalColumn = useWatch({
     control,
-    name: `page.widgets.${idx}.column`,
+    name: `page.widgets.${sectionIndex}.column`,
   });
 
-  const { fields, update } = useFieldArray({
+  const { fields, update, remove } = useFieldArray({
     control,
-    name: `page.widgets.${idx}.widgetData`,
+    name: `page.widgets.${sectionIndex}.widgetData`,
     keyName: "_id",
   });
 
   useEffect(() => {
-    const widgetData = getValues(`page.widgets.${idx}.widgetData`) || [];
+    const widgetData =
+      getValues(`page.widgets.${sectionIndex}.widgetData`) || [];
     let newWidgetData: WidgetDataType[] = [];
     let totalColumnNeeded = totalColumn;
 
@@ -52,12 +53,12 @@ const Section = ({ control, idx, onDelete }: SectionProps) => {
         .map(() => ({ type: "", data: {} }))
     );
 
-    setValue(`page.widgets.${idx}.widgetData`, newWidgetData);
-  }, [totalColumn, idx, getValues, setValue]);
+    setValue(`page.widgets.${sectionIndex}.widgetData`, newWidgetData);
+  }, [totalColumn, sectionIndex, getValues, setValue]);
 
   const handleChangeColumn = (column: number) => {
     return () => {
-      setValue(`page.widgets.${idx}.column`, column);
+      setValue(`page.widgets.${sectionIndex}.column`, column);
       setOpenSelectColumns(false);
     };
   };
@@ -66,7 +67,7 @@ const Section = ({ control, idx, onDelete }: SectionProps) => {
   };
 
   const handleDeleteSection = () => {
-    onDelete(idx);
+    onDelete(sectionIndex);
   };
 
   const handleSelectedComponent = (
@@ -74,6 +75,10 @@ const Section = ({ control, idx, onDelete }: SectionProps) => {
     component: string
   ) => {
     update(widgetDataIdx, { type: component });
+  };
+
+  const handleDeleteSelectedComponent = (widgetDataIdx: number) => {
+    update(widgetDataIdx, { type: "" });
   };
 
   return (
@@ -102,9 +107,10 @@ const Section = ({ control, idx, onDelete }: SectionProps) => {
           <SelectComponent
             key={item._id}
             idx={index}
-            onSelectedComponent={handleSelectedComponent}
-            totalColumn={totalColumn}
             type={item.type}
+            totalColumn={totalColumn}
+            onSelectComponent={handleSelectedComponent}
+            onDeleteComponent={handleDeleteSelectedComponent}
           />
         ))}
       </div>

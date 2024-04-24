@@ -55,7 +55,7 @@ const Home = () => {
           <Section
             control={control}
             key={item.id}
-            idx={idx}
+            sectionIndex={idx}
             onDelete={handleDeleteSection}
           />
         ))}

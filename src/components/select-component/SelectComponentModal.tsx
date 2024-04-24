@@ -20,14 +20,15 @@ type SelectComponentModalProps = {
 
 const SelectComponentModal = ({
   idx,
-  value,
+  value = "",
   onSelectComponent,
   ...rest
 }: SelectComponentModalProps) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [selectedComponent, setSelectedComponent] = useState<string>("");
+  const [selectedComponent, setSelectedComponent] = useState<string>(value);
 
   const handleCloseModal = () => {
+    setSelectedComponent(value);
     setOpenModal(false);
   };
 
@@ -46,7 +47,7 @@ const SelectComponentModal = ({
   return (
     <div {...rest}>
       <div
-        className="border-dashed border flex justify-center items-center p-4 rounded-md bg-gray-100 cursor-pointer"
+        className="border-dashed border-2 flex justify-center items-center p-4 rounded-md bg-gray-100 cursor-pointer"
         onClick={() => setOpenModal(true)}
       >
         <PlusIcon />
@@ -60,7 +61,7 @@ const SelectComponentModal = ({
         <Select
           options={options}
           onSelected={handleSelectedComponent}
-          value={value}
+          value={selectedComponent}
         />
       </Modal>
     </div>
