@@ -16,7 +16,7 @@ export type SectionProps = {
   onDelete: (idx: number) => void;
 };
 
-const MAX_COLUMNS = 4;
+const MAX_COLUMNS = 6;
 
 const Section = ({ control, idx, onDelete }: SectionProps) => {
   const [openSelectColumns, setOpenSelectColumns] = useState<boolean>(false);
@@ -28,22 +28,30 @@ const Section = ({ control, idx, onDelete }: SectionProps) => {
     name: `page.widgets.${idx}.column`,
   });
 
-  const { fields } = useFieldArray({
+  const { fields, update } = useFieldArray({
     control,
     name: `page.widgets.${idx}.widgetData`,
+    keyName: "_id",
   });
 
   useEffect(() => {
     const widgetData = getValues(`page.widgets.${idx}.widgetData`) || [];
-    let newWidgetData: WidgetDataType[] = new Array(totalColumn)
-      .fill(0)
-      .map(() => ({ type: "", data: {} }));
+    let newWidgetData: WidgetDataType[] = [];
+    let totalColumnNeeded = totalColumn;
 
-    if (!widgetData.length) {
-      newWidgetData = newWidgetData.map(
-        (_, index) => widgetData?.[index] ?? { type: "", data: {} }
-      );
+    if (widgetData.length) {
+      newWidgetData = widgetData
+        .filter((item) => item.type)
+        .slice(0, totalColumn);
+      totalColumnNeeded = totalColumn - newWidgetData.length;
     }
+
+    newWidgetData.push(
+      ...new Array(totalColumnNeeded)
+        .fill(0)
+        .map(() => ({ type: "", data: {} }))
+    );
+
     setValue(`page.widgets.${idx}.widgetData`, newWidgetData);
   }, [totalColumn, idx, getValues, setValue]);
 
@@ -65,7 +73,7 @@ const Section = ({ control, idx, onDelete }: SectionProps) => {
     widgetDataIdx: number,
     component: string
   ) => {
-    setValue(`page.widgets.${idx}.widgetData.${widgetDataIdx}.type`, component);
+    update(widgetDataIdx, { type: component });
   };
 
   return (
@@ -89,12 +97,14 @@ const Section = ({ control, idx, onDelete }: SectionProps) => {
         />
         <DeleteIcon className="cursor-pointer" onClick={handleDeleteSection} />
       </div>
-      <div className={`grid grid-cols-${totalColumn} gap-4`}>
-        {fields.map((_, index) => (
+      <div className={`flex flex-wrap -mx-2 gap-y-4`}>
+        {fields.map((item, index) => (
           <SelectComponent
-            key={index}
+            key={item._id}
             idx={index}
-            onSelectComponent={handleSelectedComponent}
+            onSelectedComponent={handleSelectedComponent}
+            totalColumn={totalColumn}
+            type={item.type}
           />
         ))}
       </div>

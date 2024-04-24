@@ -1,58 +1,40 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
-import PlusIcon from "../icons/PlusIcon";
-import Modal from "../modal";
-import Select, { OptionType } from "../select";
-
-const options: OptionType[] = [
-  { value: "text", label: "Text" },
-  { value: "image", label: "Image" },
-  { value: "video", label: "Video" },
-  { value: "button", label: "Button" },
-];
+import SelectComponentModal from "../select-component-modal";
 
 type SelectComponentProps = {
+  totalColumn: number;
+  type?: string;
   idx: number;
-  onSelectComponent?: (idx: number, component: string) => void;
+  onSelectedComponent: (widgetDataIdx: number, component: string) => void;
 };
 
-const SelectComponent = ({ idx, onSelectComponent }: SelectComponentProps) => {
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [selectedComponent, setSelectedComponent] = useState<string>("");
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
-
-  const handleSelectedComponent = (value: string) => {
-    setSelectedComponent(value);
-  };
-
-  const handleApply = () => {
-    selectedComponent &&
-      onSelectComponent &&
-      onSelectComponent(idx, selectedComponent);
-
-    setOpenModal(false);
+const SelectComponent = ({
+  idx,
+  type,
+  totalColumn,
+  onSelectedComponent,
+}: SelectComponentProps) => {
+  const handleSelectedComponent = (
+    widgetDataIdx: number,
+    component: string
+  ) => {
+    onSelectedComponent(widgetDataIdx, component);
   };
 
   return (
-    <>
-      <div
-        className="border-dashed border flex justify-center items-center p-4 rounded-md bg-gray-100 cursor-pointer"
-        onClick={() => setOpenModal(true)}
-      >
-        <PlusIcon />
-      </div>
-      <Modal
-        isOpen={openModal}
-        onClose={handleCloseModal}
-        onConfirm={handleApply}
-        title="Select component"
-      >
-        <Select options={options} onSelected={handleSelectedComponent} />
-      </Modal>
-    </>
+    <div
+      className="px-2"
+      style={{
+        width: `calc(${100 / totalColumn}%)`,
+      }}
+    >
+      {type}
+      <SelectComponentModal
+        idx={idx}
+        onSelectComponent={handleSelectedComponent}
+        value={type}
+      />
+    </div>
   );
 };
+
 export default SelectComponent;
