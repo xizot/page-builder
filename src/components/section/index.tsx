@@ -9,6 +9,7 @@ import { FormValues, WidgetDataType } from "../../pages/Home/types";
 import DeleteIcon from "../icons/DeleteIcon";
 import ViewColumnIcon from "../icons/ViewColumnIcon";
 import SelectComponent from "../select-component";
+import { EnumComponentType } from "../types/ComponentTypes";
 
 export type SectionProps = {
   control: Control<FormValues>;
@@ -28,7 +29,7 @@ const Section = ({ control, sectionIndex, onDelete }: SectionProps) => {
     name: `page.widgets.${sectionIndex}.column`,
   });
 
-  const { fields, update, remove } = useFieldArray({
+  const { fields, update } = useFieldArray({
     control,
     name: `page.widgets.${sectionIndex}.widgetData`,
     keyName: "_id",
@@ -48,9 +49,7 @@ const Section = ({ control, sectionIndex, onDelete }: SectionProps) => {
     }
 
     newWidgetData.push(
-      ...new Array(totalColumnNeeded)
-        .fill(0)
-        .map(() => ({ type: "", data: {} }))
+      ...new Array(totalColumnNeeded).fill(0).map(() => ({ data: {} }))
     );
 
     setValue(`page.widgets.${sectionIndex}.widgetData`, newWidgetData);
@@ -72,13 +71,13 @@ const Section = ({ control, sectionIndex, onDelete }: SectionProps) => {
 
   const handleSelectedComponent = (
     widgetDataIdx: number,
-    component: string
+    component: EnumComponentType
   ) => {
     update(widgetDataIdx, { type: component });
   };
 
   const handleDeleteSelectedComponent = (widgetDataIdx: number) => {
-    update(widgetDataIdx, { type: "" });
+    update(widgetDataIdx, {});
   };
 
   return (
@@ -102,13 +101,12 @@ const Section = ({ control, sectionIndex, onDelete }: SectionProps) => {
         />
         <DeleteIcon className="cursor-pointer" onClick={handleDeleteSection} />
       </div>
-      <div className={`flex flex-wrap -mx-2 gap-y-4`}>
+      <div className={`grid grid-cols-${totalColumn} gap-4`}>
         {fields.map((item, index) => (
           <SelectComponent
             key={item._id}
             idx={index}
             type={item.type}
-            totalColumn={totalColumn}
             onSelectComponent={handleSelectedComponent}
             onDeleteComponent={handleDeleteSelectedComponent}
           />

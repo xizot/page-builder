@@ -1,19 +1,13 @@
 import { useState } from "react";
 import PlusIcon from "../icons/PlusIcon";
 import Modal from "../common/modal";
-import Select, { OptionType } from "../common/select";
-
-const options: OptionType[] = [
-  { value: "text", label: "Text" },
-  { value: "image", label: "Image" },
-  { value: "video", label: "Video" },
-  { value: "button", label: "Button" },
-];
+import Select from "../common/select";
+import { EnumComponentType, componentOptions } from "../types/ComponentTypes";
 
 type SelectComponentModalProps = {
   idx: number;
   value?: string;
-  onSelectComponent?: (idx: number, component: string) => void;
+  onSelectComponent?: (idx: number, component: EnumComponentType) => void;
   className?: string;
   style?: React.CSSProperties;
 };
@@ -39,7 +33,7 @@ const SelectComponentModal = ({
   const handleApply = () => {
     selectedComponent &&
       onSelectComponent &&
-      onSelectComponent(idx, selectedComponent);
+      onSelectComponent(idx, selectedComponent as EnumComponentType);
 
     setOpenModal(false);
   };
@@ -59,7 +53,7 @@ const SelectComponentModal = ({
         title="Select component"
       >
         <Select
-          options={options}
+          options={componentOptions}
           onSelected={handleSelectedComponent}
           value={selectedComponent}
         />
